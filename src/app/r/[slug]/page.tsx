@@ -30,7 +30,28 @@ const page = async ({ params }: PageProps) => {
       },
     },
   });
+  let subscription = !session?.user
+    ? undefined
+    : await db.subscription.findFirst({
+        where: {
+          subreddit: {
+            name: slug,
+          },
+          user: {
+            id: session.user.id,
+          },
+        },
+      });
+  let isSubscribed = !!subscription;
+  let memberCount = await db.subscription.count({
+    where: {
+      subreddit: {
+        name: slug,
+      },
+    },
+  });
   if (!subreddit) return notFound();
+
   return (
     <>
       <h1 className="font-bold text-3xl md:text-4xl ">r/{subreddit?.name}</h1>
